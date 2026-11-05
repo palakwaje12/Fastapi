@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 import json
 #uvicorn main:app --reload
 app=FastAPI()
@@ -8,6 +8,7 @@ app=FastAPI()
 # post- can write and creates new data
 # put - can update
 # delete- can delete
+
 @app.get('/')     #ENDPOINT-whtever written in inverted comma 'll be displayed on tht particular page
 def greet():
     return{"hello world"}
@@ -71,7 +72,8 @@ start=(page-1)*limit
 end=start+limit
 """
 @app.get("/paginate")
-def paginate_students(page:int,limit:int):
+def paginate_students(page:int=Query(1,ge=1,description="which page u want starting from 1?"),
+                      limit:int=Query(2,ge=1,description="how many records u want to see in that page?")):
     data=load_data()
     student=[]
     for student_id, student_info in data.items():
@@ -80,3 +82,6 @@ def paginate_students(page:int,limit:int):
     start=(page-1)*limit
     end=start+limit
     return student[start:end]
+
+"""
+pydantic-we use it for validation"""
