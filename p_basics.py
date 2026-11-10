@@ -1,17 +1,17 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator
 """
 pydantic fundamentals
 pydantic is a data validation and settings management library for python, based on python type annotations"""
 """
 step1:the problem 
-a normal dictionary accepts anything.Nobody checks the data type of the values we are storing in the dictionary."""
+a normal dictionary accepts anything.Nobody checks the data type of the values we are storing in the dictionary.
 bad_student={
     "name":"",
     "age":"twenty",
     "marks":110,
     "email":"not an email"
 }
-#print(bad_student)
+#print(bad_student)   """
 
 """
 step2:the solution i.e. BASEMODEL + TYPE HINTS   wht basemodel does is it checks the data type of the values we are 
@@ -28,7 +28,7 @@ s=Student(name="palak",age="20",marks=100) """     #it automates type conversion
 """
 step 3-FIELD() Rules
 gt=greater than          lt=less than
-gt=greater than equal to            lt=less than equal to"""
+gt=greater than equal to            lt=less than equal to
 class RuleStudent(BaseModel):
     name:str=Field(...,min_length=2,max_length=100)   #... means it is a required field
     age:int=Field(...,gt=0,lt=100)
@@ -36,7 +36,7 @@ class RuleStudent(BaseModel):
     course:str="python"
     phone:str|None=None
     s=RuleStudent(name="palak",age=20,marks=100)
-    print(s.name,s.age,s.marks,s.course,s.phone)
+    print(s.name,s.age,s.marks,s.course,s.phone)"""
 
 """
 step4-EMAIL VALIDATION
@@ -46,3 +46,24 @@ class EmailStudent(BaseModel):
     email:EmailStr
     s=EmailStudent(email="palak@example.com")
     #print(s.name,s.email)  """
+
+"""
+step 5:final student mode
+1.field validator->our own custom validation rules"""
+class Student(BaseModel):
+    id:str=Field(...,min_length=2,max_length=100)
+    name:str=Field(...,min_length=2,max_length=50)
+    age:int=Field(...,gt=0,le=100)
+    course:str=Field(...,min_length=2,max_length=100)
+    marks:int=Field(...,ge=0,le=100)
+
+#custom rule:name must contain only letters and spaces
+    @field_validator("name")
+    @classmethod
+    def check_name(cls,value):
+        if not value.replace(" ","").isalpha():
+            raise ValueError("name must contain only letters and spaces")
+        return value.title()  #title case i.e. first letter of each word is capital
+    
+s=Student(id="1",name="palak 1",age=20,course="python",marks=100)
+print(s.id,s.name,s.age,s.course,s.marks)
